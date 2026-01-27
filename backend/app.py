@@ -56,7 +56,6 @@ def _sanitize_title(title: str) -> str:
         raise HTTPException(status_code=400, detail="El título no puede estar vacío")
     return cleaned
 
-
 # ---------------------------
 # Endpoints
 # ---------------------------
