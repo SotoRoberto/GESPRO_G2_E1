@@ -56,5 +56,29 @@ def _sanitize_title(title: str) -> str:
         raise HTTPException(status_code=400, detail="El título no puede estar vacío")
     return cleaned
 
+# ---------------------------
+# Endpoints
+# ---------------------------
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 
+@app.get("/tasks", response_model=List[Task])
+def list_tasks():
+    return _tasks
+
+
+@app.post("/tasks", response_model=Task)
+def create_task(payload: TaskCreate):
+    global _next_id
+
+    title = _sanitize_title(payload.title)
+    status: TaskStatus = payload.status if payload.status is not None else "TODO"
+
+    task = Task(id=_next_id, title=title, status=status)
+    _next_id += 1
+    _tasks.append(task)
+
+    return task
