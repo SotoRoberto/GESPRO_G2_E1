@@ -1,25 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi App de Tareas</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestor de Tareas</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-   <header>
-       <h1>hola</h1>
-   </header>
+  <header class="app-header">
+    <h1>Gestor de tareas</h1>
+  </header>
 
-   <main>
-       <h2>Lista de Tareas</h2>
-       <ul id="task-list">
-           <!-- Las tareas se van a mostrar aquí -->
-       </ul>
-   </main>
-    
-   <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-   <script src="script.js"></script> 
+  <main class="container">
+    <section class="card">
+      <h2>Nueva tarea</h2>
+
+      <form id="task-form" class="task-form">
+        <input id="task-title" type="text" placeholder="Título de la tarea" />
+        <select id="task-status">
+          <option value="TODO" selected>TODO</option>
+          <option value="IN_PROGRESS">IN_PROGRESS</option>
+          <option value="DONE">DONE</option>
+        </select>
+        <button type="submit">Crear</button>
+      </form>
+
+      <p id="form-error" class="error"></p>
+    </section>
+
+    <section class="card">
+      <h2>Tablero</h2>
+
+      <div class="board">
+        <div class="column">
+          <div class="column-header">TODO</div>
+          <div id="col-todo" class="column-body"></div>
+        </div>
+
+        <div class="column">
+          <div class="column-header">IN_PROGRESS</div>
+          <div id="col-inprogress" class="column-body"></div>
+        </div>
+
+        <div class="column">
+          <div class="column-header">DONE</div>
+          <div id="col-done" class="column-body"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
