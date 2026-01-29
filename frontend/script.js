@@ -1,5 +1,6 @@
 const API_BASE_URL = "http://127.0.0.1:8000";
 
+/* Mostrar listado de tareas */
 async function loadTasks() {
   const list = document.getElementById("task-list");
   list.innerHTML = "<li>Cargando...</li>";
@@ -26,6 +27,7 @@ async function loadTasks() {
   }
 }
 
+/* Crear tareas */
 async function createTask(title) {
   const res = await fetch(`${API_BASE_URL}/tasks`, {
     method: "POST",
@@ -71,7 +73,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-
-
-
