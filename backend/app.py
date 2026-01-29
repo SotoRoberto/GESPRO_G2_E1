@@ -177,22 +177,29 @@ class TaskUpdate(BaseModel):
     status: TaskStatus
 
 @app.patch("/tasks/{task_id}", response_model=Task)
-def update_task_status(task_id: int, payload: TaskUpdate):
-        # límite in progress
-    if payload.status == "IN_PROGRESS" and count_in_progress_tasks() >= MAX_IN_PROGRESS:
-        raise HTTPException(
-            status_code=400,
-            detail="Límite de 5 tareas en IN_PROGRESS alcanzado"
-        )
-
+def update_task(task_id: int, payload: TaskUpdate):
     for i, t in enumerate(_tasks):
         if t.id == task_id:
-            updated = t.model_copy(update={"status": payload.status})
+            updates = {}
+
+            if payload.status is not None:
+                updates["status"] = payload.status
+
+            if payload.comments is not None:
+                updates["comments"] = payload.comments.strip()
+
+            if payload.actual_time is not None:
+                actual_time = float(payload.actual_time)
+                if actual_time < 0:
+                    raise HTTPException(status_code=400, detail="El tiempo real no puede ser negativo")
+                updates["actual_time"] = actual_time
+
+            updated = t.model_copy(update=updates)
             _tasks[i] = updated
 
-            save_tasks_to_file(_tasks)  # 👈 persistencia
-
+            save_tasks_to_file(_tasks)  # persistencia JSON
             return updated
+
     raise HTTPException(status_code=404, detail="Task not found")
 
 
