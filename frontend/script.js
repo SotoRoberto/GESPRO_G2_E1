@@ -97,6 +97,17 @@ function renderTask(task) {
   btnRight.textContent = "→";
   btnRight.disabled = task.status === "DONE";
   btnRight.addEventListener("click", async () => {
+    const targetStatus = nextStatus(task.status);
+
+    if (
+      targetStatus === "IN_PROGRESS" &&
+      countInProgressTasks() >= MAX_IN_PROGRESS
+    ) {
+    
+      alert("No se pueden tener más de 5 tareas en IN_PROGRESS.");
+      return;
+    }
+    
     try {
       await apiMoveTask(task.id, nextStatus(task.status));
       await loadBoard();
@@ -155,6 +166,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (title.length > 120) {
       setFormError("El título es demasiado largo (máx. 120 caracteres).");
+      return;
+    }
+
+    if (status === "IN_PROGRESS" && countInProgressTasks() >= MAX_IN_PROGRESS) {
+      setFormError("Solo se permiten 5 tareas en IN_PROGRESS.");
       return;
     }
 
