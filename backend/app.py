@@ -130,7 +130,7 @@ def list_tasks():
 _tasks, _next_id = load_tasks_from_file()
 
 # ---------------------------------------------------------
-# Endpoint POST /tasks
+# POST /tasks
 # Se investigó la creación de recursos con POST y el uso
 # de modelos de entrada para validación.
 # ---------------------------------------------------------
@@ -140,6 +140,13 @@ def create_task(payload: TaskCreate):
 
     title = _sanitize_title(payload.title)
     status: TaskStatus = payload.status if payload.status is not None else "TODO"
+
+# Límite in progress
+    if status == "IN_PROGRESS" and count_in_progress_tasks() >= MAX_IN_PROGRESS:
+        raise HTTPException(
+            status_code=400,
+            detail="No se pueden tener más de 5 tareas en IN_PROGRESS"
+        )
 
     description = (payload.description or "").strip()
     estimated_time = float(payload.estimated_time or 0.0)
@@ -171,6 +178,13 @@ class TaskUpdate(BaseModel):
 
 @app.patch("/tasks/{task_id}", response_model=Task)
 def update_task_status(task_id: int, payload: TaskUpdate):
+        # límite in progress
+        if payload.status == "IN_PROGRESS" and count_in_progress_tasks() >= MAX_IN_PROGRESS:
+        raise HTTPException(
+            status_code=400,
+            detail="Límite de 5 tareas en IN_PROGRESS alcanzado"
+        )
+
     for i, t in enumerate(_tasks):
         if t.id == task_id:
             updated = t.model_copy(update={"status": payload.status})
@@ -180,3 +194,13 @@ def update_task_status(task_id: int, payload: TaskUpdate):
 
             return updated
     raise HTTPException(status_code=404, detail="Task not found")
+
+
+# ---------------------------------------------------------
+# Límite in progress
+# ---------------------------------------------------------
+
+MAX_IN_PROGRESS = 5
+
+def count_in_progress_tasks():
+    return sum(1 for t in _tasks if t.status == "IN_PROGRESS")
