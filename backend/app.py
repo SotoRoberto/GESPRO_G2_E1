@@ -2,7 +2,6 @@ from typing import List, Literal, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from pydantic import BaseModel
 import json
 import os
 
@@ -18,7 +17,11 @@ TaskStatus = Literal["TODO", "IN_PROGRESS", "DONE"]
 class Task(BaseModel):
     id: int
     title: str
+    description: str = ""                 # NUEVO
+    estimated_time: float = 0.0           # NUEVO (horas, por ejemplo)
     status: TaskStatus = "TODO"
+    comments: str = ""                    # NUEVO
+    actual_time: float = 0.0              # NUEVO (horas)
 
 class TaskCreate(BaseModel):
     title: str = Field(
@@ -26,8 +29,15 @@ class TaskCreate(BaseModel):
         min_length=1, 
         description="Título de la tarea (no vacío)."
     )
+    description: Optional[str] = ""       # NUEVO
+    estimated_time: Optional[float] = 0.0 # NUEVO
     status: Optional[TaskStatus] = None  # Si no viene, se asigna TODO
 
+class TaskUpdate(BaseModel):
+    # para cambios parciales (status, comentarios, tiempo real, etc.)
+    status: Optional[TaskStatus] = None
+    comments: Optional[str] = None
+    actual_time: Optional[float] = None
 
 class ErrorResponse(BaseModel):
     error: str
@@ -129,15 +139,29 @@ def create_task(payload: TaskCreate):
     global _next_id
 
     title = _sanitize_title(payload.title)
-    status: TaskStatus = payload.status if payload.status else "TODO"
+    status: TaskStatus = payload.status if payload.status is not None else "TODO"
 
-    task = Task(id=_next_id, title=title, status=status)
+    description = (payload.description or "").strip()
+    estimated_time = float(payload.estimated_time or 0.0)
+    if estimated_time < 0:
+        raise HTTPException(status_code=400, detail="El tiempo estimado no puede ser negativo")
+
+    task = Task(
+        id=_next_id,
+        title=title,
+        description=description,
+        estimated_time=estimated_time,
+        status=status,
+        comments="",
+        actual_time=0.0
+    )
+
     _next_id += 1
     _tasks.append(task)
 
-    save_tasks_to_file(_tasks)   # 👈 persistencia
-
+    save_tasks_to_file(_tasks)  # si ya tienes persistencia JSON
     return task
+
 
 # ---------------------------------------------------------
 # Categorizar tareas
