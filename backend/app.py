@@ -183,7 +183,19 @@ def update_task(task_id: int, payload: TaskUpdate):
             updates = {}
 
             if payload.status is not None:
+                # Límite IN_PROGRESS también al mover
+                if payload.status == "IN_PROGRESS":
+                    currently_in_progress = count_in_progress_tasks()
+
+                    # Si la tarea ya está en IN_PROGRESS, no cuenta como "nueva"
+                    if t.status != "IN_PROGRESS" and currently_in_progress >= MAX_IN_PROGRESS:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"No se pueden tener más de {MAX_IN_PROGRESS} tareas en IN_PROGRESS"
+                        )
+
                 updates["status"] = payload.status
+
 
             if payload.comments is not None:
                 updates["comments"] = payload.comments.strip()
