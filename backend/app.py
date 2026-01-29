@@ -80,3 +80,26 @@ def list_tasks():
 
 _tasks: List[Task] = []
 _next_id: int = 1
+
+# ---------------------------------------------------------
+# Endpoint POST /tasks
+# Se investigó la creación de recursos con POST y el uso
+# de modelos de entrada para validación.
+# ---------------------------------------------------------
+@app.post("/tasks", response_model=Task)
+def create_task(payload: TaskCreate):
+    global _next_id
+
+    title = _sanitize_title(payload.title)
+    status: TaskStatus = payload.status if payload.status else "TODO"
+
+    task = Task(
+        id=_next_id,
+        title=title,
+        status=status
+    )
+
+    _next_id += 1
+    _tasks.append(task)
+
+    return task
