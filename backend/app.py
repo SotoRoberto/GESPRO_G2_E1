@@ -179,7 +179,7 @@ class TaskUpdate(BaseModel):
 @app.patch("/tasks/{task_id}", response_model=Task)
 def update_task_status(task_id: int, payload: TaskUpdate):
         # límite in progress
-        if payload.status == "IN_PROGRESS" and count_in_progress_tasks() >= MAX_IN_PROGRESS:
+    if payload.status == "IN_PROGRESS" and count_in_progress_tasks() >= MAX_IN_PROGRESS:
         raise HTTPException(
             status_code=400,
             detail="Límite de 5 tareas en IN_PROGRESS alcanzado"

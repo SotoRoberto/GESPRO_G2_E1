@@ -2,11 +2,31 @@
   {
     "id": 1,
     "title": "Hola",
-    "status": "TODO"
+    "status": "IN_PROGRESS"
   },
   {
     "id": 2,
     "title": "Hola 2",
-    "status": "DONE"
+    "status": "IN_PROGRESS"
+  },
+  {
+    "id": 3,
+    "title": "Tarea 2",
+    "status": "IN_PROGRESS"
+  },
+  {
+    "id": 4,
+    "title": "Tarea 3",
+    "status": "IN_PROGRESS"
+  },
+  {
+    "id": 5,
+    "title": "Tarea 4",
+    "status": "IN_PROGRESS"
+  },
+  {
+    "id": 6,
+    "title": "Tarea 5",
+    "status": "IN_PROGRESS"
   }
 ]
