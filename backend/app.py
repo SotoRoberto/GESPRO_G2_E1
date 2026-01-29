@@ -2,6 +2,7 @@ from typing import List, Literal, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 # =========================================================
 # MODELOS
@@ -103,3 +104,18 @@ def create_task(payload: TaskCreate):
     _tasks.append(task)
 
     return task
+
+# ---------------------------------------------------------
+# Categorizar tareas
+# ---------------------------------------------------------
+class TaskUpdate(BaseModel):
+    status: TaskStatus
+
+@app.patch("/tasks/{task_id}", response_model=Task)
+def update_task_status(task_id: int, payload: TaskUpdate):
+    for i, t in enumerate(_tasks):
+        if t.id == task_id:
+            updated = t.model_copy(update={"status": payload.status})
+            _tasks[i] = updated
+            return updated
+    raise HTTPException(status_code=404, detail="Task not found")
