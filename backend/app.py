@@ -169,13 +169,6 @@ def create_task(payload: TaskCreate):
     save_tasks_to_file(_tasks)  # si ya tienes persistencia JSON
     return task
 
-
-# ---------------------------------------------------------
-# Categorizar tareas
-# ---------------------------------------------------------
-class TaskUpdate(BaseModel):
-    status: TaskStatus
-
 @app.patch("/tasks/{task_id}", response_model=Task)
 def update_task(task_id: int, payload: TaskUpdate):
     for i, t in enumerate(_tasks):
