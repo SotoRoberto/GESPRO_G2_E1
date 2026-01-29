@@ -86,7 +86,7 @@ def health():
 
 # ---------------------------------------------------------
 # GET /tasks
-# Se investigó el método HTTP GET para la obtención de
+# Método HTTP GET para la obtención de
 # recursos y su implementación en FastAPI.
 # Este endpoint devuelve la lista completa de tareas.
 # ---------------------------------------------------------
