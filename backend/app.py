@@ -11,12 +11,10 @@ from pydantic import BaseModel, Field
 
 TaskStatus = Literal["TODO", "IN_PROGRESS", "DONE"]
 
-
 class Task(BaseModel):
     id: int
     title: str
     status: TaskStatus = "TODO"
-
 
 class TaskCreate(BaseModel):
     title: str = Field(
@@ -30,7 +28,6 @@ class TaskCreate(BaseModel):
 class ErrorResponse(BaseModel):
     error: str
 
-
 # =========================================================
 # APP
 # Se investigó la configuración básica de FastAPI y CORS
@@ -41,25 +38,6 @@ app = FastAPI(
     title="Gestor de Tareas API",
     version="1.0.0"
 )
-
-# Configuración de CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # En producción se deben restringir
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# =========================================================
-# PERSISTENCIA EN MEMORIA
-# Se investigó el uso de listas en memoria como simulación
-# de base de datos para pruebas iniciales.
-# =========================================================
-
-_tasks: List[Task] = []
-_next_id: int = 1
-
 
 def _sanitize_title(title: str) -> str:
     """
@@ -94,26 +72,11 @@ def health():
 def list_tasks():
     return _tasks
 
+# =========================================================
+# PERSISTENCIA EN MEMORIA
+# Se investigó el uso de listas en memoria como simulación
+# de base de datos para pruebas iniciales.
+# =========================================================
 
-# ---------------------------------------------------------
-# POST /tasks
-# Se investigó la creación de recursos con POST y el uso
-# de modelos de entrada para validación.
-# ---------------------------------------------------------
-@app.post("/tasks", response_model=Task)
-def create_task(payload: TaskCreate):
-    global _next_id
-
-    title = _sanitize_title(payload.title)
-    status: TaskStatus = payload.status if payload.status else "TODO"
-
-    task = Task(
-        id=_next_id,
-        title=title,
-        status=status
-    )
-
-    _next_id += 1
-    _tasks.append(task)
-
-    return task
+_tasks: List[Task] = []
+_next_id: int = 1
