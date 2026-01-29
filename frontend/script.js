@@ -5,8 +5,9 @@ async function loadTasks() {
   list.innerHTML = "<li>Cargando...</li>";
 
   try {
-    const res = await fetch(${API_BASE_URL}/tasks);
-    if (!res.ok) throw new Error(Error HTTP ${res.status});
+    const res = await fetch(`${API_BASE_URL}/tasks`);
+    if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
+
     const tasks = await res.json();
 
     list.innerHTML = "";
@@ -17,23 +18,22 @@ async function loadTasks() {
 
     for (const task of tasks) {
       const li = document.createElement("li");
-      li.textContent = ${task.title} [${task.status}];
+      li.textContent = `${task.title} [${task.status}]`;
       list.appendChild(li);
     }
   } catch (err) {
-    list.innerHTML = <li>Error cargando tareas: ${err.message}</li>;
+    list.innerHTML = `<li>Error cargando tareas: ${err.message}</li>`;
   }
 }
 
 async function createTask(title) {
-  const res = await fetch(${API_BASE_URL}/tasks, {
+  const res = await fetch(`${API_BASE_URL}/tasks`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title }),
   });
 
   if (!res.ok) {
-    // Intenta leer el error del backend
     let detail = "Error creando tarea";
     try {
       const data = await res.json();
@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
       const input = document.getElementById("task-title");
       const title = input.value.trim();
 
@@ -70,3 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+
+
+
