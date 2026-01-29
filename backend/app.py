@@ -82,3 +82,17 @@ def create_task(payload: TaskCreate):
     _tasks.append(task)
 
     return task
+
+    from fastapi.middleware.cors import CORSMiddleware
+
+# ---------------------------
+# Agregar CORS
+# ---------------------------
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
