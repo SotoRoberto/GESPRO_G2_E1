@@ -3,6 +3,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from pydantic import BaseModel
+import json
+import os
+
 
 # =========================================================
 # MODELOS
@@ -39,6 +42,30 @@ app = FastAPI(
     title="Gestor de Tareas API",
     version="1.0.0"
 )
+
+DATA_FILE = "tasks.json"
+
+
+def load_tasks_from_file():
+    if not os.path.exists(DATA_FILE):
+        return [], 1
+
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    tasks = [Task(**t) for t in data]
+    next_id = max([t.id for t in tasks], default=0) + 1
+    return tasks, next_id
+
+
+def save_tasks_to_file(tasks):
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(
+            [t.model_dump() for t in tasks],
+            f,
+            indent=2,
+            ensure_ascii=False
+        )
 
 def _sanitize_title(title: str) -> str:
     """
@@ -78,9 +105,7 @@ def list_tasks():
 # Se investigó el uso de listas en memoria como simulación
 # de base de datos para pruebas iniciales.
 # =========================================================
-
-_tasks: List[Task] = []
-_next_id: int = 1
+_tasks, _next_id = load_tasks_from_file()
 
 # ---------------------------------------------------------
 # Endpoint POST /tasks
@@ -94,14 +119,11 @@ def create_task(payload: TaskCreate):
     title = _sanitize_title(payload.title)
     status: TaskStatus = payload.status if payload.status else "TODO"
 
-    task = Task(
-        id=_next_id,
-        title=title,
-        status=status
-    )
-
+    task = Task(id=_next_id, title=title, status=status)
     _next_id += 1
     _tasks.append(task)
+
+    save_tasks_to_file(_tasks)   # 👈 persistencia
 
     return task
 
@@ -117,5 +139,8 @@ def update_task_status(task_id: int, payload: TaskUpdate):
         if t.id == task_id:
             updated = t.model_copy(update={"status": payload.status})
             _tasks[i] = updated
+
+            save_tasks_to_file(_tasks)  # 👈 persistencia
+
             return updated
     raise HTTPException(status_code=404, detail="Task not found")
