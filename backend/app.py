@@ -62,7 +62,7 @@ app = FastAPI(
 
 DATA_FILE = "tasks.json"
 SETTINGS_FILE = "settings.json"
-
+RESPONSIBLES_FILE = "responsibles.json"
 
 def load_tasks_from_file():
     if not os.path.exists(DATA_FILE):
@@ -102,6 +102,20 @@ def save_settings_to_file(settings: Settings):
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
         json.dump(settings.model_dump(), f, indent=2, ensure_ascii=False)
 
+def load_responsibles_from_file():
+    if not os.path.exists(RESPONSIBLES_FILE):
+        return []
+
+    with open(RESPONSIBLES_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    if isinstance(data, dict):
+        return data.get("responsibles", [])
+    if isinstance(data, list):
+        return data
+    return []
+
+
 def _sanitize_title(title: str) -> str:
     """
     Se investigó la validación manual de datos
@@ -134,6 +148,10 @@ app.add_middleware(
 # =========================================================
 # ENDPOINTS
 # =========================================================
+
+@app.get("/responsibles")
+def list_responsibles():
+    return load_responsibles_from_file()
 
 @app.get("/health")
 def health():

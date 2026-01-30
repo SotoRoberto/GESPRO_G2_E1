@@ -20,6 +20,12 @@ async function apiGetSettings() {
   return await res.json();
 }
 
+async function apiGetResponsibles() {
+  const res = await fetch(`${API_BASE_URL}/responsibles`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+
 async function apiPatchSettings(payload) {
   const res = await fetch(`${API_BASE_URL}/settings`, {
     method: "PATCH",
@@ -103,6 +109,18 @@ function updateInProgressBadge(value) {
   const badge = document.getElementById("inprogress-max");
   if (badge) {
     badge.textContent = `Máx: ${value}`;
+  }
+}
+
+function renderResponsibleOptions(items) {
+  const select = document.getElementById("task-resp");
+  if (!select) return;
+  select.innerHTML = "<option value=\"\" disabled selected>Selecciona un responsable</option>";
+  for (const name of items) {
+    const option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
   }
 }
 
