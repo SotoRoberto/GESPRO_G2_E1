@@ -1,6 +1,13 @@
 # GESPRO_G2_E1
 Proyecto del curso de Gestión de Proyectos en la Universidad de Burgos.
 
+# INTEGRANTES
+Roberto Soto López -
+Paola Elizabeth Martínez De la Mora -
+Camila Ocampo Bastida -
+Ximena Jazmín García Vargas -
+Arantxa Milene Amayo Vásquez
+
 # Gestor de Tareas (Web)
 
 Aplicación web sencilla para gestionar tareas: permite listar y crear tareas, aplicando validaciones básicas.
