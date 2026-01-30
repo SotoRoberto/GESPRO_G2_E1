@@ -2,10 +2,15 @@
 Proyecto del curso de Gestión de Proyectos en la Universidad de Burgos
 
 Roberto Soto López
+
 Camila Ocampo Bastida
+
 Ximena Jazmín García Vargas
+
 Paola Elizabeth Martínez de la Mora
+
 Arantxa Milene Amayo Vásquez
+
 
 # Gestor de Tareas (Web)
 
