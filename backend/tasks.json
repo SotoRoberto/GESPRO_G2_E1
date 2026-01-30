@@ -2,31 +2,81 @@
   {
     "id": 1,
     "title": "Hola",
-    "status": "IN_PROGRESS"
+    "description": "",
+    "estimated_time": 0.0,
+    "responsible": "",
+    "status": "TODO",
+    "comments": "Cerrado",
+    "actual_time": 10.0
   },
   {
     "id": 2,
     "title": "Hola 2",
-    "status": "IN_PROGRESS"
+    "description": "",
+    "estimated_time": 0.0,
+    "responsible": "",
+    "status": "IN_PROGRESS",
+    "comments": "",
+    "actual_time": 0.0
   },
   {
     "id": 3,
     "title": "Tarea 2",
-    "status": "IN_PROGRESS"
+    "description": "",
+    "estimated_time": 0.0,
+    "responsible": "",
+    "status": "DONE",
+    "comments": "",
+    "actual_time": 0.0
   },
   {
     "id": 4,
     "title": "Tarea 3",
-    "status": "IN_PROGRESS"
+    "description": "",
+    "estimated_time": 0.0,
+    "responsible": "",
+    "status": "DONE",
+    "comments": "Nada todo bien",
+    "actual_time": 55.0
   },
   {
     "id": 5,
     "title": "Tarea 4",
-    "status": "IN_PROGRESS"
+    "description": "",
+    "estimated_time": 0.0,
+    "responsible": "",
+    "status": "IN_PROGRESS",
+    "comments": "",
+    "actual_time": 0.0
   },
   {
     "id": 6,
     "title": "Tarea 5",
-    "status": "IN_PROGRESS"
+    "description": "",
+    "estimated_time": 0.0,
+    "responsible": "",
+    "status": "IN_PROGRESS",
+    "comments": "",
+    "actual_time": 0.0
+  },
+  {
+    "id": 7,
+    "title": "Tarea 9",
+    "description": "tarea",
+    "estimated_time": 8.0,
+    "responsible": "",
+    "status": "DONE",
+    "comments": "Se tardo mas",
+    "actual_time": 15.0
+  },
+  {
+    "id": 8,
+    "title": "Hola 5",
+    "description": "hola 5 prueba",
+    "estimated_time": 100.0,
+    "responsible": "Pao",
+    "status": "TODO",
+    "comments": "",
+    "actual_time": 0.0
   }
 ]

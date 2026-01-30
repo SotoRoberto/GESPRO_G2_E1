@@ -19,6 +19,7 @@ class Task(BaseModel):
     title: str
     description: str = ""                 # NUEVO
     estimated_time: float = 0.0           # NUEVO (horas, por ejemplo)
+    responsible: str = ""                 # NUEVO
     status: TaskStatus = "TODO"
     comments: str = ""                    # NUEVO
     actual_time: float = 0.0              # NUEVO (horas)
@@ -27,17 +28,23 @@ class TaskCreate(BaseModel):
     title: str = Field(
         ..., 
         min_length=1, 
+        max_length=120,
         description="Título de la tarea (no vacío)."
     )
-    description: Optional[str] = ""       # NUEVO
+    description: Optional[str] = Field("", max_length=280)       # NUEVO
     estimated_time: Optional[float] = 0.0 # NUEVO
+    responsible: Optional[str] = Field("", max_length=80)       # NUEVO
     status: Optional[TaskStatus] = None  # Si no viene, se asigna TODO
 
 class TaskUpdate(BaseModel):
     # para cambios parciales (status, comentarios, tiempo real, etc.)
     status: Optional[TaskStatus] = None
-    comments: Optional[str] = None
+    comments: Optional[str] = Field(None, max_length=500)
     actual_time: Optional[float] = None
+    responsible: Optional[str] = Field(None, max_length=80)
+
+class Settings(BaseModel):
+    max_in_progress: int = Field(5, ge=1, le=50)
 
 class ErrorResponse(BaseModel):
     error: str
@@ -54,6 +61,7 @@ app = FastAPI(
 )
 
 DATA_FILE = "tasks.json"
+SETTINGS_FILE = "settings.json"
 
 
 def load_tasks_from_file():
@@ -77,6 +85,23 @@ def save_tasks_to_file(tasks):
             ensure_ascii=False
         )
 
+def load_settings_from_file():
+    if not os.path.exists(SETTINGS_FILE):
+        return Settings()
+
+    with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    try:
+        return Settings(**data)
+    except Exception:
+        return Settings()
+
+
+def save_settings_to_file(settings: Settings):
+    with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+        json.dump(settings.model_dump(), f, indent=2, ensure_ascii=False)
+
 def _sanitize_title(title: str) -> str:
     """
     Se investigó la validación manual de datos
@@ -89,6 +114,9 @@ def _sanitize_title(title: str) -> str:
             detail="El título no puede estar vacío"
         )
     return cleaned
+
+def _sanitize_short_text(value: Optional[str]) -> str:
+    return (value or "").strip()
 
 # =========================================================
 # MIDDLEWARE CORS
@@ -128,6 +156,7 @@ def list_tasks():
 # de base de datos para pruebas iniciales.
 # =========================================================
 _tasks, _next_id = load_tasks_from_file()
+_settings = load_settings_from_file()
 
 # ---------------------------------------------------------
 # POST /tasks
@@ -141,23 +170,27 @@ def create_task(payload: TaskCreate):
     title = _sanitize_title(payload.title)
     status: TaskStatus = payload.status if payload.status is not None else "TODO"
 
-# Límite in progress
-    if status == "IN_PROGRESS" and count_in_progress_tasks() >= MAX_IN_PROGRESS:
+    # Límite in progress
+    if status == "IN_PROGRESS" and count_in_progress_tasks() >= _settings.max_in_progress:
         raise HTTPException(
             status_code=400,
-            detail="No se pueden tener más de 5 tareas en IN_PROGRESS"
+            detail=f"No se pueden tener más de {_settings.max_in_progress} tareas en IN_PROGRESS"
         )
 
-    description = (payload.description or "").strip()
+    description = _sanitize_short_text(payload.description)
     estimated_time = float(payload.estimated_time or 0.0)
     if estimated_time < 0:
         raise HTTPException(status_code=400, detail="El tiempo estimado no puede ser negativo")
+    responsible = _sanitize_short_text(payload.responsible)
+    if not responsible:
+        raise HTTPException(status_code=400, detail="El responsable es obligatorio")
 
     task = Task(
         id=_next_id,
         title=title,
         description=description,
         estimated_time=estimated_time,
+        responsible=responsible,
         status=status,
         comments="",
         actual_time=0.0
@@ -181,10 +214,10 @@ def update_task(task_id: int, payload: TaskUpdate):
                     currently_in_progress = count_in_progress_tasks()
 
                     # Si la tarea ya está en IN_PROGRESS, no cuenta como "nueva"
-                    if t.status != "IN_PROGRESS" and currently_in_progress >= MAX_IN_PROGRESS:
+                    if t.status != "IN_PROGRESS" and currently_in_progress >= _settings.max_in_progress:
                         raise HTTPException(
                             status_code=400,
-                            detail=f"No se pueden tener más de {MAX_IN_PROGRESS} tareas en IN_PROGRESS"
+                            detail=f"No se pueden tener más de {_settings.max_in_progress} tareas en IN_PROGRESS"
                         )
 
                 updates["status"] = payload.status
@@ -199,6 +232,12 @@ def update_task(task_id: int, payload: TaskUpdate):
                     raise HTTPException(status_code=400, detail="El tiempo real no puede ser negativo")
                 updates["actual_time"] = actual_time
 
+            if payload.responsible is not None:
+                cleaned = payload.responsible.strip()
+                if not cleaned:
+                    raise HTTPException(status_code=400, detail="El responsable es obligatorio")
+                updates["responsible"] = cleaned
+
             updated = t.model_copy(update=updates)
             _tasks[i] = updated
 
@@ -209,10 +248,24 @@ def update_task(task_id: int, payload: TaskUpdate):
 
 
 # ---------------------------------------------------------
-# Límite in progress
+# Configuración
 # ---------------------------------------------------------
 
-MAX_IN_PROGRESS = 5
+@app.get("/settings", response_model=Settings)
+def get_settings():
+    return _settings
+
+
+@app.patch("/settings", response_model=Settings)
+def update_settings(payload: Settings):
+    global _settings
+    max_in_progress = payload.max_in_progress
+    if max_in_progress < 1:
+        raise HTTPException(status_code=400, detail="El máximo debe ser mayor a cero")
+    _settings = Settings(max_in_progress=max_in_progress)
+    save_settings_to_file(_settings)
+    return _settings
+
 
 def count_in_progress_tasks():
     return sum(1 for t in _tasks if t.status == "IN_PROGRESS")

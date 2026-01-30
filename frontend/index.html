@@ -8,7 +8,13 @@
 </head>
 <body>
   <header class="app-header">
-    <h1>Gestor de tareas</h1>
+    <div class="brand">
+      <img src="logo.png" alt="Logo Tec de Monterrey" class="brand-logo" />
+      <div>
+        <p class="brand-eyebrow">Tecnológico de Monterrey y Universidad de Burgos</p>
+        <h1>Gestor de tareas</h1>
+      </div>
+    </div>
   </header>
 
   <main class="container">
@@ -17,14 +23,30 @@
 
       <!-- Formulario para crear tareas -->
       <form id="task-form" class="task-form">
-        <input id="task-title" type="text" placeholder="Título de la tarea" />
-        <input id="task-desc" type="text" placeholder="Descripción (opcional)" />
-        <input id="task-est" type="number" step="0.25" min="0" placeholder="Tiempo estimado (hrs)" />
-        <select id="task-status">
-          <option value="TODO" selected>TODO</option>
-          <option value="IN_PROGRESS">IN_PROGRESS</option>
-          <option value="DONE">DONE</option>
-        </select>
+        <div class="field">
+          <label for="task-title">Título</label>
+          <input id="task-title" type="text" placeholder="Título de la tarea" maxlength="120" />
+        </div>
+        <div class="field">
+          <label for="task-desc">Descripción</label>
+          <textarea id="task-desc" placeholder="Descripción (opcional)" maxlength="280"></textarea>
+        </div>
+        <div class="field">
+          <label for="task-resp">Responsable</label>
+          <input id="task-resp" type="text" placeholder="Responsable" maxlength="80" />
+        </div>
+        <div class="field">
+          <label for="task-est">Tiempo estimado (hrs)</label>
+          <input id="task-est" type="number" step="0.25" min="0" placeholder="0.0" />
+        </div>
+        <div class="field">
+          <label for="task-status">Estado</label>
+          <select id="task-status">
+            <option value="TODO" selected>TODO</option>
+            <option value="IN_PROGRESS">IN_PROGRESS</option>
+            <option value="DONE">DONE</option>
+          </select>
+        </div>
         <button type="submit">Crear</button>
       </form>
 
@@ -34,6 +56,14 @@
     <section class="card">
       <h2>Tablero</h2>
 
+      <div class="board-toolbar">
+        <div class="limit-control">
+          <span>Máximo en IN_PROGRESS</span>
+          <input id="max-inprogress" type="number" min="1" max="50" />
+        </div>
+        <p id="limit-hint" class="hint"></p>
+      </div>
+
       <div class="board">
         <div class="column">
           <div class="column-header">TODO</div>
@@ -41,7 +71,10 @@
         </div>
 
         <div class="column">
-          <div class="column-header">IN_PROGRESS</div>
+          <div class="column-header">
+            IN_PROGRESS
+            <span id="inprogress-max" class="badge"></span>
+          </div>
           <div id="col-inprogress" class="column-body"></div>
         </div>
 
@@ -52,6 +85,16 @@
       </div>
     </section>
   </main>
+
+  <div id="details-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="details-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="details-title">Detalles de la tarea</h3>
+        <button id="details-close" class="icon-button" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="details-content" class="modal-content"></div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
