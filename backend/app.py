@@ -60,9 +60,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-DATA_FILE = "tasks.json"
-SETTINGS_FILE = "settings.json"
-RESPONSIBLES_FILE = "responsibles.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(BASE_DIR, "tasks.json")
+SETTINGS_FILE = os.path.join(BASE_DIR, "settings.json")
+RESPONSIBLES_FILE = os.path.join(BASE_DIR, "responsibles.json")
 
 def load_tasks_from_file():
     if not os.path.exists(DATA_FILE):

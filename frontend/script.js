@@ -116,6 +116,14 @@ function renderResponsibleOptions(items) {
   const select = document.getElementById("task-resp");
   if (!select) return;
   select.innerHTML = "<option value=\"\" disabled selected>Selecciona un responsable</option>";
+  if (!items || items.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No hay responsables disponibles";
+    option.disabled = true;
+    select.appendChild(option);
+    return;
+  }
   for (const name of items) {
     const option = document.createElement("option");
     option.value = name;
@@ -323,7 +331,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const inputResp = document.getElementById("task-resp");
   const selectStatus = document.getElementById("task-status");
   const inputMax = document.getElementById("max-inprogress");
+  const loadResponsibles = async () => {
+    if (!inputResp) return;
+    try {
+      const responsibles = await apiGetResponsibles();
+      renderResponsibleOptions(responsibles);
+      inputResp.disabled = !Array.isArray(responsibles) || responsibles.length === 0;
+      if (inputResp.disabled) {
+        setFormError("No se encontraron responsables.");
+      }
+    } catch (err) {
+      renderResponsibleOptions([]);
+      inputResp.disabled = true;
+      setFormError("No se pudieron cargar los responsables.");
+    }
+  };
 
+  loadResponsibles();
   if (inputMax) {
     apiGetSettings()
       .then((settings) => {
