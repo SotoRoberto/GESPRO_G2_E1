@@ -8,6 +8,11 @@ Camila Ocampo Bastida -
 Ximena Jazmín García Vargas -
 Arantxa Milene Amayo Vásquez
 
+## Agradecimientos
+Este proyecto utilizó ChatGPT (OpenAI) como apoyo para generación de ideas, asistencia con código y documentación.
+OpenAI. *ChatGPT*. https://chat.openai.com  
+Modelo de lenguaje utilizado para apoyo en el desarrollo del proyecto.
+
 # Gestor de Tareas (Web)
 
 Aplicación web sencilla para gestionar tareas: permite listar y crear tareas, aplicando validaciones básicas.
